@@ -1,46 +1,93 @@
-async function loadProjects() {
-    try {
-        const response = await fetch('project-descriptions.json');
-        const projects = await response.json();
-        
-        const projectGrid = document.getElementById('projectGrid');
-        
-        Object.entries(projects).forEach(([id, project]) => {
-            const projectCard = document.createElement('div');
-            projectCard.className = 'project-card';
-            projectCard.innerHTML = `
-                <div class="project-image"></div>
-                <div class="project-info">
-                    <h3>${project.title}</h3>
-                    <button class="desc-btn" data-project-id="${id}">Description</button>
-                    <div class="project-desc" id="${id}-desc" style="display: none;">
-                        Loading description...
-                    </div>
-                </div>
-            `;
-            projectGrid.appendChild(projectCard);
-        });
+// Toggle mobile menu
+document.querySelector('.menu-toggle').addEventListener('click', () => {
+    document.querySelector('.nav-links').classList.toggle('active');
+});
 
-        document.querySelectorAll('.desc-btn').forEach(button => {
-            button.addEventListener('click', async (e) => {
-                const projectId = button.dataset.projectId;
-                const descElement = document.getElementById(`${projectId}-desc`);
-                
-                if (descElement.style.display === 'none') {
-                    descElement.style.display = 'block';
-                    if (descElement.textContent === 'Loading description...') {
-                        const project = projects[projectId];
-                        descElement.textContent = project.description;
-                    }
-                } else {
-                    descElement.style.display = 'none';
-                }
-            });
-        });
-    } catch (error) {
-        console.error('Error loading project descriptions:', error);
-        document.getElementById('projectGrid').innerHTML = '<p>Error loading projects. Please try again later.</p>';
+// Project data with image URLs
+const projects = [
+    {
+        id: 'project1',
+        title: 'E-commerce Website',
+        image: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=500&auto=format',
+        summary: 'A full-featured e-commerce platform built with React and Node.js'
+    },
+    {
+        id: 'project2',
+        title: 'Task Management App',
+        image: 'https://images.unsplash.com/photo-1540350394557-8d14678e7f91?w=500&auto=format',
+        summary: 'A productivity app for managing daily tasks and projects'
+    },
+    {
+        id: 'project3',
+        title: 'Social Media Dashboard',
+        image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=500&auto=format',
+        summary: 'Analytics dashboard for social media management'
     }
+];
+
+// Load projects
+function loadProjects() {
+    const projectGrid = document.getElementById('projectGrid');
+    
+    projects.forEach(project => {
+        const projectCard = document.createElement('div');
+        projectCard.className = 'project-card';
+        
+        // Create project HTML with error handling for images
+        projectCard.innerHTML = `
+            <div class="project-image" 
+                 style="background-image: url('${project.image}')"
+                 onerror="this.style.backgroundColor='#f0f0f0'">
+            </div>
+            <div class="project-info">
+                <h3>${project.title}</h3>
+                <p>${project.summary}</p>
+                <button class="desc-btn" data-project-id="${project.id}">Show Description</button>
+                <div class="project-desc" id="${project.id}-desc" style="display: none;">
+                    Loading description...
+                </div>
+            </div>
+        `;
+        projectGrid.appendChild(projectCard);
+    });
+
+    // Add click handlers for description buttons
+    document.querySelectorAll('.desc-btn').forEach(button => {
+        button.addEventListener('click', async (e) => {
+            const projectId = button.dataset.projectId;
+            const descElement = document.getElementById(`${projectId}-desc`);
+            
+            if (descElement.style.display === 'none') {
+                try {
+                    // Load description from text file
+                    const response = await fetch(`descriptions/${projectId}.txt`);
+                    if (!response.ok) {
+                        throw new Error('Failed to load description');
+                    }
+                    const description = await response.text();
+                    descElement.textContent = description;
+                    descElement.style.display = 'block';
+                    button.textContent = 'Hide Description';
+                } catch (error) {
+                    console.error('Error loading project description:', error);
+                    descElement.textContent = 'Error loading description. Please try again later.';
+                    descElement.style.display = 'block';
+                }
+            } else {
+                descElement.style.display = 'none';
+                button.textContent = 'Show Description';
+            }
+        });
+    });
 }
 
+// Load projects when DOM is ready
 document.addEventListener('DOMContentLoaded', loadProjects);
+
+// Handle contact form submission
+document.querySelector('.contact-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    // Add your form submission logic here
+    alert('Thank you for your message! I will get back to you soon.');
+    e.target.reset();
+});

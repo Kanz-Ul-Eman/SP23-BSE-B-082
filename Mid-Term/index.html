@@ -1,117 +1,105 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Portfolio</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"
-    />
-    <link rel="stylesheet" href="style.css" />
-  </head>
-  <body>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
     <nav class="top-nav">
-      <div class="container nav-wrapper">
-        <a href="#" class="brand">Web Developer</a>
-        <div class="menu-toggle">
-          <i class="fas fa-bars"></i>
+        <div class="container nav-wrapper">
+            <a href="#" class="brand">Web Developer</a>
+            <div class="menu-toggle">
+                <i class="fas fa-bars"></i>
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#projects">Projects</a></li>
+                <li><a href="#skills">Skills</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
         </div>
-        <ul class="nav-links">
-          <li><a href="#home">Home</a></li>
-          <li><a href="#projects">Projects</a></li>
-          <li><a href="#skills">Skills</a></li>
-          <li><a href="#contact">Contact</a></li>
-        </ul>
-      </div>
     </nav>
 
     <section class="hero" id="home">
-      <div class="container hero-content">
-        <h1>Kanz Ul Eman Gohar</h1>
-        <p>Full Stack Developer</p>
-        <a href="#contact" class="cta-button">Get in Touch</a>
-      </div>
+        <div class="container hero-content">
+            <h1>Kanz Ul Eman Gohar</h1>
+            <p>Full Stack Developer</p>
+            <a href="#contact" class="cta-button">Get in Touch</a>
+        </div>
     </section>
 
-    
-
     <section class="projects" id="projects">
-      <div class="container">
-          <h2 class="section-title">My Projects</h2>
-          <div class="project-grid" id="projectGrid">
-          </div>
-      </div>
-  </section>
-    <section class="skills" id="skills">
-      <div class="container">
-        <h2 class="section-title">Skills</h2>
-        <div class="skill-bars">
-          <div class="skill-item">
-            <div class="skill-info">
-              <span>HTML/CSS</span>
-              <span>90%</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress" style="width: 90%"></div>
-            </div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-info">
-              <span>JavaScript</span>
-              <span>80%</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress" style="width: 80%"></div>
-            </div>
-          </div>
-          <div class="skill-item">
-            <div class="skill-info">
-              <span>React</span>
-              <span>75%</span>
-            </div>
-            <div class="progress-bar">
-              <div class="progress" style="width: 75%"></div>
-            </div>
-          </div>
+        <div class="container">
+            <h2 class="section-title">My Projects</h2>
+            <div class="project-grid" id="projectGrid"></div>
         </div>
-      </div>
+    </section>
+
+    <section class="skills" id="skills">
+        <div class="container">
+            <h2 class="section-title">Skills</h2>
+            <div class="skill-bars">
+                <div class="skill-item">
+                    <div class="skill-info">
+                        <span>HTML/CSS</span>
+                        <span>90%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 90%"></div>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <div class="skill-info">
+                        <span>JavaScript</span>
+                        <span>80%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 80%"></div>
+                    </div>
+                </div>
+                <div class="skill-item">
+                    <div class="skill-info">
+                        <span>React</span>
+                        <span>75%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress" style="width: 75%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <section class="contact" id="contact">
-      <div class="container">
-        <h2 class="section-title">Contact Me</h2>
-        <form class="contact-form">
-          <div class="form-group">
-            <input type="text" class="form-input" placeholder="Name" required />
-          </div>
-          <div class="form-group">
-            <input
-              type="email"
-              class="form-input"
-              placeholder="Email"
-              required
-            />
-          </div>
-          <div class="form-group">
-            <textarea
-              class="form-input"
-              rows="5"
-              placeholder="Message"
-              required
-            ></textarea>
-          </div>
-          <button type="submit" class="cta-button">Send Message</button>
-        </form>
-      </div>
+        <div class="container">
+            <h2 class="section-title">Contact Me</h2>
+            <form class="contact-form">
+                <div class="form-group">
+                    <input type="text" class="form-input" placeholder="Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" class="form-input" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <textarea class="form-input" rows="5" placeholder="Message" required></textarea>
+                </div>
+                <button type="submit" class="cta-button">Send Message</button>
+            </form>
+        </div>
     </section>
 
     <footer class="footer">
-      <div class="container">
-        <p>&copy; 2024 Kanz Ul Eman. All rights reserved.</p>
-      </div>
+        <div class="container">
+            <p>&copy; 2024 Kanz Ul Eman. All rights reserved.</p>
+        </div>
     </footer>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="script.js"></script>
-  </body>
+</body>
 </html>
