@@ -1,10 +1,14 @@
 const express = require("express");
 let server = express();
 
-server.use(express.static(__dirname));
+server.use(express.static("public"));
+server.set("view engine", "ejs");
 
+server.get("/index", (req, res) => {
+  res.send(res.render("index"));
+});
 server.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
+  res.send(res.render("portfolio"));
 });
 
 server.listen(3000, () => {
