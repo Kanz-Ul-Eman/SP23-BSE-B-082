@@ -11,6 +11,8 @@ let adminProductsRouter = require("./routes/products.controller");
 server.use(adminProductsRouter);
 let adminCreateRouter = require("./routes/create.controller");
 server.use(adminCreateRouter);
+let adminCategoryRouter = require("./routes/category.controller");
+server.use(adminCategoryRouter);
 
 server.get("/index", (req, res) => {
   res.send(res.render("index"));
@@ -25,7 +27,8 @@ server.get("/", (req, res) => {
   res.send(res.render("portfolio"));
 });
 
-let connectionString = "mongodb+srv://kanz:kanz123@sp23-bse-082.varls.mongodb.net/";
+let connectionString =
+  "mongodb+srv://kanz:kanz123@sp23-bse-082.varls.mongodb.net/";
 mongoose
   .connect(connectionString, { useNewUrlParser: true })
   .then(() => console.log("Connected to Mongo DB Server: " + connectionString))
