@@ -8,17 +8,6 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
-/*************  ✨ Codeium Command ⭐  *************/
-/**
- * Creates a Multer storage engine for Cloudinary.
- *
- * @param {Object} [options] - Options for the storage engine.
- * @param {string} [options.folder="picture"] - The folder in Cloudinary to store the file.
- * @param {string} [options.resourceType="image"] - The type of resource to store.
- * @param {Function} [options.format] - A function that takes the request and file objects and returns the file format.
-
-/******  c47e41d4-ecc3-48dd-9f92-bdf735e64d17  *******/
 const createCloudinaryStorage = ({
   folder = "picture",
   resourceType = "image",
