@@ -1,39 +1,36 @@
-<div class="desktop-content">
-  <div class="row align-items-center">
-    <div class="col-md-3">
-      <div class="logo">
-        <img src="assets/logo1.png" alt="Urban Interiors" class="img-fluid" />
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="search-bar p-2">
-        <div class="input-group">
-          <span class="input-group-text bg-transparent border-0">
-            <i class="fa-solid fa-magnifying-glass"></i>
-          </span>
-          <input
-            type="text"
-            class="form-control border-0"
-            placeholder="Search keyword or item#"
-          />
-        </div>
-      </div>
-    </div>
-    <div class="col-md-3">
-      <div class="header-icons d-flex justify-content-end">
-        <a href="#" class="icon-item text-center mx-2">
-          <i class="fa-solid fa-tags mb-1"></i>
-          <p class="mb-0 small">Promotions</p>
-        </a>
-        <a href="#" class="icon-item text-center mx-2">
-          <i class="fa-solid fa-location-dot mb-1"></i>
-          <p class="mb-0 small">Locations</p>
-        </a>
-        <a href="/login" class="icon-item text-center mx-2">
-          <i class="fa-solid fa-circle-user mb-1"></i>
-          <p class="mb-0 small">Account</p>
-        </a>
-      </div>
-    </div>
+<style>
+  .its-hero {
+    display: flex;
+    align-items: center;
+    background-color: #2c4a5e;
+    justify-content: center;
+    padding: 10px;
+  }
+  .its-hero a {
+    color: white;
+  }
+</style>
+
+<div class="container hero-content">
+  <div class="its-hero">
+    <a href="#contact" class="cta-button">Get in Touch</a>
+    <a href="/index" class="cta-button" style="margin-left: 10px"
+      >Go to Bootstrap webiste</a
+    >
+    <a href="/admin/products" class="cta-button" style="margin-left: 10px"
+      >Admin Panel</a
+    >
+    <% if (user) { %>
+    <a href="/logout" class="cta-button" style="margin-left: 10px">Logout</a>
+    <% } else { %>
+    <a href="/auth/login" class="cta-button" style="margin-left: 10px">Login</a>
+    <a href="/auth/signup" class="cta-button" style="margin-left: 10px"
+      >SignUp</a
+    >
+    <% } %>
+
+    <a href="/admin/user-products" class="cta-button" style="margin-left: 10px"
+      >See Products</a
+    >
   </div>
 </div>

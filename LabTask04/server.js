@@ -4,6 +4,7 @@ let server = express();
 var expressLayouts = require("express-ejs-layouts");
 server.use(express.static("public"));
 server.set("view engine", "ejs");
+const flash = require("connect-flash");
 
 let Product = require("./models/product.model");
 let User = require("./models/user.model");
@@ -13,9 +14,10 @@ server.use(cookieParser());
 server.use(expressLayouts);
 server.use(express.json());
 server.use(express.urlencoded());
+server.use(flash());
 
 let session = require("express-session");
-server.use(session({ secret: "my session secret" }));
+server.use(session({ secret: "my session secret", saveUninitialized: true }));
 
 let siteMiddleware = require("./middleware/site.middleware");
 let authMiddleware = require("./middleware/auth.middleware");
@@ -49,6 +51,7 @@ server.post("/auth/login", async (req, res) => {
   if (!isValid) return res.redirect("/auth/login");
 
   req.session.user = user;
+  req.flash("success_msg", "You have successfully logged in.");
   return res.redirect("/portfolio");
 });
 
