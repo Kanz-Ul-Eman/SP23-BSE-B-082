@@ -2,6 +2,7 @@ const express = require("express");
 let router = express.Router();
 let Product = require("../models/product.model");
 let adminMiddleware = require("../middleware/admin.middleware");
+let authMiddleware = require("../middleware/auth.middleware");
 
 router.get("/admin/products/:page?", adminMiddleware, async (req, res) => {
   try {
@@ -59,7 +60,7 @@ router.get("/admin/products/:page?", adminMiddleware, async (req, res) => {
   }
 });
 
-router.get("/admin/user-products/:page?", async (req, res) => {
+router.get("/admin/user-products/:page?", authMiddleware, async (req, res) => {
   try {
     const page = parseInt(req.params.page) || 1;
     const pageSize = 3;
@@ -103,6 +104,7 @@ router.get("/admin/user-products/:page?", async (req, res) => {
       category,
       minPrice,
       maxPrice,
+      user: req.session.user,
     });
   } catch (error) {
     console.error("Error fetching products:", error);

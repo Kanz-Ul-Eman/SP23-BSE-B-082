@@ -1,12 +1,10 @@
 const Order = require("../models/order.model");
 const Product = require("../models/product.model");
-const User = require("../models/user.model"); // Ensure User model is imported
 
 exports.submitOrder = async (req, res) => {
   try {
     const { products, customerName, phone, address, total } = req.body;
 
-    // Validate input
     if (
       !customerName ||
       !phone ||
@@ -20,11 +18,9 @@ exports.submitOrder = async (req, res) => {
       });
     }
 
-    // Verify product prices
     const productIds = products.map((p) => p.id);
     const dbProducts = await Product.find({ _id: { $in: productIds } });
 
-    // Create order with verified products
     const order = new Order({
       user: req.session.user ? req.session.user._id : null,
       products: products.map((product) => {
@@ -41,7 +37,7 @@ exports.submitOrder = async (req, res) => {
       customerName,
       phone,
       address,
-      status: "Pending", // Ensure default status
+      status: "Pending",
     });
 
     await order.save();
@@ -65,27 +61,23 @@ exports.getAdminOrders = async (req, res) => {
     const orders = await Order.find()
       .populate({
         path: "user",
-        select: "email", // Only select email field
-        // This handles cases where user might be null
+        select: "email",
         options: {
           strictPopulate: false,
         },
       })
       .populate({
         path: "products.product",
-        select: "title price", // Only select title and price
+        select: "title price",
         options: {
           strictPopulate: false,
         },
       })
       .sort({ createdAt: -1 });
 
-    // Ensure each order has default values
     const processedOrders = orders.map((order) => {
-      // Create a new object to avoid modifying the original
       const processedOrder = order.toObject();
 
-      // Default values for missing fields
       processedOrder.user = processedOrder.user || { email: "Guest User" };
       processedOrder.status = processedOrder.status || "Pending";
       processedOrder.totalPrice = processedOrder.totalPrice || 0;
@@ -100,6 +92,100 @@ exports.getAdminOrders = async (req, res) => {
     });
   } catch (error) {
     console.error("Error fetching orders:", error);
+    res.status(500).render("error", {
+      message: "Error fetching orders",
+      error: error.message,
+    });
+  }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+  try {
+    const { orderId, status } = req.body;
+
+    // Validate input
+    if (!orderId || !status) {
+      return res.status(400).json({
+        success: false,
+        message: "Order ID and status are required.",
+      });
+    }
+
+    // Validate status
+    const validStatuses = ["Pending", "Delivered", "Cancelled"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid order status.",
+      });
+    }
+
+    // Find and update the order
+    const order = await Order.findByIdAndUpdate(
+      orderId,
+      { status: status },
+      { new: true }
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: "Order not found.",
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Order status updated successfully.",
+      order: order,
+    });
+  } catch (error) {
+    console.error("Order status update error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update order status. Please try again later.",
+    });
+  }
+};
+
+exports.getUserOrders = async (req, res) => {
+  try {
+    // Ensure user is logged in
+    if (!req.session.user) {
+      return res.redirect("/auth/login");
+    }
+
+    // Log the current user's ID for debugging
+    console.log("Current User ID:", req.session.user._id);
+
+    // Fetch orders for the logged-in user with more detailed population
+    const orders = await Order.find({ user: req.session.user._id })
+      .populate({
+        path: "products.product",
+        select: "title picture price",
+      })
+      .sort({ createdAt: -1 });
+
+    // Log the number of orders found
+    console.log("Number of orders found:", orders.length);
+
+    // Log order details for debugging
+    orders.forEach((order, index) => {
+      console.log(`Order ${index + 1}:`, {
+        orderId: order._id,
+        userId: order.user,
+        totalPrice: order.totalPrice,
+        status: order.status,
+      });
+    });
+
+    // Render the user orders page
+    res.render("admin/my-orders", {
+      pageTitle: "My Orders",
+      orders: orders,
+    });
+  } catch (error) {
+    console.error("Error fetching user orders:", error);
     res.status(500).render("error", {
       message: "Error fetching orders",
       error: error.message,

@@ -4,6 +4,7 @@ let server = express();
 var expressLayouts = require("express-ejs-layouts");
 server.use(express.static("public"));
 server.set("view engine", "ejs");
+const flash = require("connect-flash");
 
 let Product = require("./models/product.model");
 let User = require("./models/user.model");
@@ -13,9 +14,10 @@ server.use(cookieParser());
 server.use(expressLayouts);
 server.use(express.json());
 server.use(express.urlencoded());
+server.use(flash());
 
 let session = require("express-session");
-server.use(session({ secret: "my session secret" }));
+server.use(session({ secret: "my session secret", saveUninitialized: true }));
 
 let siteMiddleware = require("./middleware/site.middleware");
 let authMiddleware = require("./middleware/auth.middleware");
@@ -25,6 +27,12 @@ const cartController = require("./routes/cart.controller");
 
 server.post("/submit-order", authMiddleware, cartController.submitOrder);
 server.get("/admin/orders", adminMiddleware, cartController.getAdminOrders);
+server.post(
+  "/admin/update-order-status",
+  adminMiddleware,
+  cartController.updateOrderStatus
+);
+server.get("/my-orders", authMiddleware, cartController.getUserOrders);
 
 server.get("/logout", async (req, res) => {
   req.session.user = null;
@@ -40,16 +48,21 @@ server.get("/", async (req, res) => {
 });
 
 server.post("/auth/login", async (req, res) => {
-  let data = req.body;
-  let user = await User.findOne({ email: data.email });
+  try {
+    let data = req.body;
+    let user = await User.findOne({ email: data.email });
 
-  if (!user) return res.redirect("/auth/login");
-  const isValid = await user.comparePassword(data.password);
+    if (!user) return res.redirect("/auth/login");
+    const isValid = await user.comparePassword(data.password);
 
-  if (!isValid) return res.redirect("/auth/login");
+    if (!isValid) return res.redirect("/auth/login");
 
-  req.session.user = user;
-  return res.redirect("/portfolio");
+    req.session.user = user;
+    req.flash("success_msg", "You have successfully logged in.");
+    return res.redirect("/portfolio");
+  } catch (err) {
+    req.flash("success_msg", "You have successfully logged in.");
+  }
 });
 
 server.get("/auth/signup", async (req, res) => {

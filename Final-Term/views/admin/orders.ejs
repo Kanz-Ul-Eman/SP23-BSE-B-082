@@ -31,7 +31,7 @@
             <td><%= order.user.email %></td>
             <td><%= order.customerName %></td>
             <td>$<%= order.totalPrice.toFixed(2) %></td>
-            <td><%= order.status %></td>
+            <td class="order-status"><%= order.status %></td>
             <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
             <td>
               <button
@@ -43,6 +43,22 @@
               >
                 View Details
               </button>
+              <button
+                class="btn btn-primary ms-2"
+                onclick="toggleStatusDropdown(this)"
+              >
+                Change Status
+              </button>
+              <div class="status-dropdown d-none mt-2">
+                <select
+                  class="form-select mb-2"
+                  onchange="updateOrderStatusDirectly(this, '<%= order._id %>')"
+                >
+                  <option value="Pending" <%= order.status === "Pending" ? "selected" : "" %>>Pending</option>
+                  <option value="Delivered" <%= order.status === "Delivered" ? "selected" : "" %>>Delivered</option>
+                  <option value="Cancelled" <%= order.status === "Cancelled" ? "selected" : "" %>>Cancelled</option>
+                </select>
+              </div>
             </td>
           </tr>
           <% }); %>
@@ -73,7 +89,6 @@
           </div>
           <div class="modal-body">
             <div class="row">
-              <!-- Left Column -->
               <div class="col-md-6">
                 <p><strong>Order ID:</strong> <span id="order-id"></span></p>
                 <p>
@@ -86,12 +101,10 @@
                 <p><strong>Phone:</strong> <span id="phone"></span></p>
               </div>
 
-              <!-- Right Column -->
               <div class="col-md-6">
                 <p><strong>Address:</strong> <span id="address"></span></p>
                 <p><strong>Status:</strong> <span id="status"></span></p>
                 <p><strong>Date:</strong> <span id="order-date"></span></p>
-                <p><strong>Time:</strong> <span id="order-time"></span></p>
               </div>
             </div>
 
@@ -113,6 +126,37 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+      function toggleStatusDropdown(button) {
+        const dropdown = button.nextElementSibling;
+        dropdown.classList.toggle("d-none");
+      }
+
+      function updateOrderStatusDirectly(selectElement, orderId) {
+        const newStatus = selectElement.value;
+
+        fetch("/admin/update-order-status", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ orderId, status: newStatus }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              const row = selectElement.closest("tr");
+              row.querySelector(".order-status").textContent = newStatus;
+              alert("Order status updated successfully!");
+            } else {
+              alert(data.message);
+            }
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+            alert("Failed to update order status.");
+          });
+      }
+
       function showOrderDetails(button) {
         const order = JSON.parse(button.getAttribute("data-order"));
 
@@ -134,10 +178,10 @@
         order.products.forEach((product) => {
           const row = document.createElement("tr");
           row.innerHTML = `
-      <td>${product.product.title}</td>
-      <td>${product.quantity}</td>
-      <td>$${product.price.toFixed(2)}</td>
-    `;
+            <td>${product.product.title}</td>
+            <td>${product.quantity}</td>
+            <td>$${product.price.toFixed(2)}</td>
+          `;
           productsList.appendChild(row);
         });
       }
