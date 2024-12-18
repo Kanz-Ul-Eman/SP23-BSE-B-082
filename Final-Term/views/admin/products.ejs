@@ -1,0 +1,43 @@
+<div class="container mt-5">
+  <h3 class="text-center text-primary mb-4"><%- pageTitle %></h3>
+
+  <div class="d-flex justify-content-end mb-3">
+    <a href="/admin/createForm" class="btn btn-success btn-lg"
+      >Create New Product</a
+    >
+  </div>
+
+  <div class="row">
+    <% for (let index = 0; index < products.length; index++) { %>
+    <div class="col-md-4 mb-4">
+      <div class="card shadow-sm h-100">
+        <img
+          src="<%= products[index].picture %>"
+          class="card-img-top"
+          alt="<%= products[index].title %>"
+          style="height: 200px; object-fit: cover"
+        />
+        <div class="card-body">
+          <h5 class="card-title text-center"><%= products[index].title %></h5>
+          <p class="card-text text-center text-primary">
+            $<%= products[index].price %>
+          </p>
+          <p class="card-text"><%= products[index].description %></p>
+        </div>
+        <div class="card-footer d-flex justify-content-center">
+          <a
+            href="/admin/products/editForm/<%= products[index]._id %>"
+            class="btn btn-warning btn-sm me-1"
+            >Edit</a
+          >
+          <a
+            href="/admin/products/delete/<%= products[index]._id %>"
+            class="btn btn-danger btn-sm ms-1"
+            >Delete</a
+          >
+        </div>
+      </div>
+    </div>
+    <% } %>
+  </div>
+</div>

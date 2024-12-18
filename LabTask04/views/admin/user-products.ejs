@@ -1,0 +1,393 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Products</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <h3 class="text-center text-primary mb-4"><%- pageTitle %></h3>
+  
+    <form action="/admin/user-products" method="get" class="mb-4">
+        <h5 class="text-primary mb-3">Sort Products</h5>
+        <div class="row mb-2">
+          <div class="col-md-2">
+            <select name="sortBy" class="form-control">
+              <option value="createdAt" <%= sortBy === 'createdAt' ? 'selected' : '' %>>Date</option>
+              <option value="price" <%= sortBy === 'price' ? 'selected' : '' %>>Price</option>
+              <option value="title" <%= sortBy === 'title' ? 'selected' : '' %>>Title</option>
+            </select>
+          </div>
+          <div class="col-md-3">
+            <select name="sortOrder" class="form-control">
+              <option value="desc" <%= sortOrder === 'desc' ? 'selected' : '' %>>Descending</option>
+              <option value="asc" <%= sortOrder === 'asc' ? 'selected' : '' %>>Ascending</option>
+            </select>
+          </div>
+          <div class="col-md-1">
+            <button type="submit" class="btn btn-info w-100">Sort</button>
+          </div>
+        </div>
+      </form>
+    
+      <!-- Filtering Section -->
+      <form action="/admin/user-products" method="get" class="mb-4">
+        <h5 class="text-primary mb-3">Filter Products</h5>
+        <div class="row mb-2">
+          <div class="col-md-2">
+            <input type="number" name="minPrice" class="form-control" placeholder="Min Price" value="<%= minPrice || '' %>">
+          </div>
+          <div class="col-md-2">
+            <input type="number" name="maxPrice" class="form-control" placeholder="Max Price" value="<%= maxPrice || '' %>">
+          </div>
+          <div class="col-md-3">
+            <input type="text" name="search" class="form-control" placeholder="Search products" value="<%= search || '' %>">
+          </div>
+          <div class="col-md-1">
+            <button type="submit" class="btn btn-primary w-100">Filter</button>
+          </div>
+        </div>
+      </form>
+    
+      <!-- Search Input -->
+      <form action="/admin/user-products" method="get" class="mb-4">
+        <h5 class="text-primary mb-3">Search Products</h5>
+        <div class="row">
+          <div class="col-md-4">
+            <input type="text" name="search" class="form-control" placeholder="Search products by title" value="<%= search || '' %>">
+          </div>
+          <div class="col-md-1">
+            <button type="submit" class="btn btn-secondary w-100">Search</button>
+            <input type="hidden" id="current-user-id" value="<%= user._id %>">
+
+          </div>
+        </div>
+      </form>
+
+      <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        Shopping Cart 
+                        <span id="cartCount" class="badge bg-primary float-end">0</span>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="cartItems" class="row">
+                        <!-- Cart items will be dynamically added here -->
+                    </div>
+                    <div id="cartTotal" class="mt-3 text-end fw-bold"></div>
+                    <button id="proceedToCheckout" class="btn btn-success mt-3" style="display:none;">
+                        Proceed to Checkout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Products card section -->
+    <div class="row">
+        <% for (let index = 0; index < products.length; index++) { %>
+        <div class="col-md-4 mb-4">
+          <div class="card shadow-sm h-100">
+            <img src="<%= products[index].picture %>" class="card-img-top" alt="<%= products[index].title %>" style="height: 150px; object-fit: cover">
+            <div class="card-body">
+              <h5 class="card-title text-center"><%= products[index].title %></h5>
+              <p class="card-text text-center text-primary">$<%= products[index].price %></p>
+              <p class="card-text"><%= products[index].description %></p>
+            </div>
+            <div class="card-footer d-flex justify-content-center">
+              <button onclick="addToCart('<%= products[index]._id %>', '<%= products[index].title %>', '<%= products[index].price %>')" class="btn btn-warning btn-sm me-1">
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+        <% } %>
+    </div>
+
+    <!-- Checkout Modal -->
+    <div class="modal fade" id="checkoutModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Order</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="orderForm">
+                        <div class="mb-3">
+                            <label class="form-label">Full Name</label>
+                            <input type="text" class="form-control" name="customerName" id="customerName" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" name="phone" id="phone" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Shipping Address</label>
+                            <textarea class="form-control" name="address" id="address" required></textarea>
+                        </div>
+                        <div class="alert alert-info">
+                            Payment Method: Cash on Delivery
+                        </div>
+                        <div id="cartSummary"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" onclick="submitOrder()" class="btn btn-primary">Confirm Order</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <nav aria-label="Page navigation example" class="d-flex justify-content-center mt-4">
+      <ul class="pagination">
+        <li class="page-item <%= page == 1 ? 'disabled' : '' %>">
+          <a class="page-link" href="/admin/user-products/<%= parseInt(page) - 1 %>" aria-label="Previous">
+            <span aria-hidden="true">&laquo;</span>
+          </a>
+        </li>
+        <% for (let index = 1; index <= totalPages; index++) { %>
+          <li class="page-item <%= index == page ? 'active' : '' %>">
+            <a class="page-link" href="/admin/user-products/<%= index %>"><%= index %></a>
+          </li>
+        <% } %>
+        <li class="page-item <%= page == totalPages ? 'disabled' : '' %>">
+          <a class="page-link" href="/admin/user-products/<%= parseInt(page) + 1 %>" aria-label="Next">
+            <span aria-hidden="true">&raquo;</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <h2 class="text-center fs-1 fw-light mb-0 mt-3">Testimonials</h2>
+    <p class="text-center text-muted mb-4">WHAT YOUR CUSTOMERS HAVE TO SAY</p>
+
+    <section class="carousel-sec">
+      <div class="container-fluid">
+        <div class="d-flex flex-lg-row flex-md-column flex-column gap-2 col-12">
+          <div class="col border border-dark">
+            <div class="review-card p-3">
+              <div class="stars">★★★★★</div>
+              <p class="review-text">
+                "...My couch was delivered on time, with care and was exactly as
+                we desigqned it. Anyone who sees it asks us where we got it and
+                I tell them Urban Interiors and that they need to work with
+                Stephanie. We just saw Stephenie the other day and thanked her
+                again. We have had our couch for 3 years and it's holding up
+                great."
+              </p>
+              <p class="fw-bold text-end">Brian. G</p>
+            </div>
+          </div>
+          <div class="col border border-dark">
+            <div class="review-card p-3">
+              <div class="stars">★★★★★</div>
+              <p class="review-text">
+                "What a great experience!! I was able to place my order over the
+                phone, with excellent service and pricing. Delivery was easy and
+                the guys were so careful bringing my furniture in. Then... to
+                top it off, I LOVE my dining room set. Will definitely buy from
+                them again."
+              </p>
+              <p class="fw-bold text-end">S.F.</p>
+            </div>
+          </div>
+          <div class="col border border-dark">
+            <div class="review-card p-3">
+              <div class="stars">★★★★★</div>
+              <p class="review-text">
+                "We just had one of the best furniture shopping experiences we
+                have ever had...One of the owners, Al Moscatel, of this
+                long-time, family owned business stepped in to guide us. He took
+                the time to be sure we had the PERFECT piece that would not only
+                look good and stand the test of time but would also fit within
+                our budget. You are tops in our book and would recommend you to
+                anyone and everyone"
+              </p>
+              <p class="fw-bold text-end">Sharon N.</p>
+            </div>
+          </div>
+          <div class="col border border-dark">
+            <div class="review-card p-3">
+              <div class="stars">★★★★★</div>
+              <p class="review-text">
+                "Working with Urban Interiors was an absolutely fantastic
+                experience... I needed to furnish an entire new home but they
+                would have been happy to sell me just one piece of furniture...
+                Perhaps the best part of the Urban Interiors experience was
+                working with Designer Jesica... I'm convinced she has to be the
+                best in the business...Dream experience for me! Thank you Urban
+                Interiors!!"
+              </p>
+              <p class="fw-bold text-end">Kathy G.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section
+      class="showroom-section border-bottom border-secondary mt-5"
+      style="background-color: #dddddd"
+    >
+      <div class="container">
+        <div class="row align-items-center">
+          <div class="col-md-4">
+            <img
+              src="/assets/img09.avif"
+              alt="Urban Interiors Showroom"
+              class="showroom-image img-fluid"
+            />
+          </div>
+
+          <div class="col-md-8">
+            <div class="info-section">
+              <h2 class="mb-4 mt-3 ms-5">Visit Our Showrooms</h2>
+              <div class="row">
+                <div class="col-sm-4 location-info mb-4">
+                  <h3>Bellevue Location:</h3>
+                  <p>700 Bellevue Way NE Suite # 200</p>
+                  <p>Bellevue, WA 98004</p>
+                  <p class="phone-number">
+                    <i class="bi bi-telephone"></i> 425-637-0888
+                  </p>
+                  <p>Mon-Sat: 9:30 AM - 7 PM</p>
+                  <p>Sun: 11 AM - 6 PM</p>
+                </div>
+
+                <div class="col-sm-4 location-info mb-4">
+                  <h3>Cle Elum Location:</h3>
+                  <p>301 E First St.</p>
+                  <p>Cle Elum, WA 98922</p>
+                  <p class="phone-number">
+                    <i class="bi bi-telephone"></i> 509-852-7391
+                  </p>
+                  <p>Mon: 10 AM - 5 PM</p>
+                  <p>Tue - Wed: by appointment only</p>
+                  <p>Thu - Sat: 10 AM - 5 PM</p>
+                  <p>Sun: 11 AM - 5 PM</p>
+                </div>
+                <div class="col-sm-4 virtual-tour text-center mb-4">
+                  <a href="#">
+                    <img
+                      src="assets/img10.webp"
+                      alt="Matterport Virtual Tour"
+                      class="img-fluid"
+                    />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-2 col-sm-3 mb-4">
+            <h3 class="fw-bold">Who We Are</h3>
+            <ul class="mb-0">
+              <li><a href="#">About Us</a></li>
+              <li><a href="#">Meet The Team</a></li>
+              <li><a href="#">Contact</a></li>
+            </ul>
+          </div>
+          <div class="col-md-2 col-sm-3 mb-4">
+            <h3 class="fw-bold">Services</h3>
+            <ul class="mb-0">
+              <li><a href="#">Our Work</a></li>
+              <li><a href="#">To The Trade</a></li>
+              <li><a href="#">Design Services</a></li>
+              <li><a href="#">Design Center</a></li>
+              <li><a href="#">Room Planner</a></li>
+            </ul>
+          </div>
+          <div class="col-md-2 col-sm-3 mb-4">
+            <h3 class="fw-bold">The Details</h3>
+            <ul class="mb-0">
+              <li><a href="#">Promotions</a></li>
+              <li><a href="#">Financing</a></li>
+              <li><a href="#">Deliveries</a></li>
+              <li><a href="#">Warranty</a></li>
+            </ul>
+          </div>
+          <div class="col-md-6 col-sm-6 mb-4">
+            <h3 class="fw-bold">
+              Subscribe to get the latest news on designs, promotions and items
+            </h3>
+            <form class="d-flex mb-3">
+              <input
+                type="email"
+                class="form-control me-2"
+                placeholder="Enter your email"
+              />
+              <button
+                type="submit"
+                class="btn btn-primary rounded-0"
+                style="background-color: #ba864a; border-color: #ba864a"
+              >
+                SUBMIT
+              </button>
+            </form>
+            <div class="social-icons d-flex justify-content-center">
+              <a
+                href="https://www.instagram.com/urbaninteriors_home/"
+                class="me-3"
+                ><i class="fab fa-instagram"></i
+              ></a>
+              <a href="https://www.facebook.com/UrbanInteriorsHome" class="me-3"
+                ><i class="fab fa-facebook-f"></i
+              ></a>
+              <a href="https://www.pinterest.com/urbaninteriors_home/"
+                ><i class="fab fa-pinterest"></i
+              ></a>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 text-center my-4">
+            <h3 class="fw-bold">
+              Contact us for in stock items ready for immediate delivery!
+            </h3>
+          </div>
+        </div>
+        <div class="row">
+          <div
+            class="col-12 d-flex justify-content-center gap-4 mb-4 contact-info"
+          >
+            <a href="mailto:contact@urbaninteriors.com"
+              ><i class="fas fa-envelope"></i> Contact Us |</a
+            >
+            <a href="tel:425-637-0888"
+              ><i class="fas fa-phone"></i> 425-637-0888</a
+            >
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-12 text-center copyright">
+            © 2022 Urban Interiors . All rights reserved. Design and
+            Development: Revalize, Inc. |
+            <a href="https://www.urbaninteriors.com/visual-site-map.inc"
+              >Site Map</a
+            >
+          </div>
+        </div>
+      </div>
+    </footer>
+    
+
+    <script src="/js/cart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+</div>
+</body>
+</html>
+  
